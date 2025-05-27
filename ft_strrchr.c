@@ -1,18 +1,29 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_toupper.c                                       :+:      :+:    :+:   */
+/*   ft_strrchr.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: yuyumaz <yuyumaz@student.42kocaeli.com.    +#+  +:+       +#+        */
+/*   By: yuyumaz <yuyumaz@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/05/26 21:19:03 by yuyumaz           #+#    #+#             */
-/*   Updated: 2025/05/27 20:14:55 by yuyumaz          ###   ########.fr       */
+/*   Created: 2025/05/27 00:32:33 by yuyumaz           #+#    #+#             */
+/*   Updated: 2025/05/27 00:44:33 by yuyumaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-int	ft_toupper(int c)
+char	*ft_strrchr(const char *s, int c)
 {
-	if (c >= 'a' && c <= 'z')
-		return (c - 32);
-	return (c);
+	char	*d;
+	char	*ret;
+
+	ret = 0;
+	d = (char *) s;
+	while (*d != 0)
+	{
+		if (*d == c)
+			ret = d;
+		d++;
+	}
+	if (c == 0)
+		return (d);
+	return (ret);
 }

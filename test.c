@@ -1,35 +1,40 @@
 #include <stdio.h>
 #include <ctype.h>
 #include <string.h>
+#include <stdlib.h>
 
-void	*ft_memset(void *s, int c, size_t n)
+int	ft_strncmp(const char *s1, const char *s2, size_t n)
 {
-	size_t i;
+	size_t	i;
+
+	if (n == 0)
+		return (0);
 
 	i = 0;
-	while (i < n)
+	while (*(s1 + i) && i < n)
 	{
-		*((unsigned char *) s + i) = (unsigned char) c;
+		if (*(s1 + i) != *(s2 + i))
+			return (*(s1 + i) - *(s2 + i));
 		i++;
 	}
+	return (*(s1 + i) - *(s2 + i));
+}
 
-	return (0);
+
+int	ft_memcmp(const void *s1, const void *s2, size_t n)
+{
+
 }
 
 /* strchr ile 42'deki 2 yi bul, memset ile 3'e setle */
-int main(void)
+int main(int argc, char *argv[])
 {
-	char buff[50];
-	char buff2[50];
-	// int *b = (int *) memset(buff, 'a', 330);
-	int *c = (int *) ft_memset(buff2, 'a', 330);
-	buff[49] = 0;
-	buff2[49] = 0;
+	if (!argv[1] || !argv[2] || !argv[3])
+		return (1);
+	printf("memcmp_nn %d\n", memcmp(argv[1], argv[2], atoi(argv[3])));
+	printf("memcmp_ft %d\n", ft_memcmp(argv[1], argv[2], atoi(argv[3])));
 
-	// *b = 0x64656667;
-
-	printf("%s\n", buff);
-	printf("%s\n", buff2);
-
+	printf("strncp_nn %d\n", strncmp(argv[1], argv[2], atoi(argv[3])));
+	printf("strncp_ft %d\n", ft_strncmp(argv[1], argv[2], atoi(argv[3])));
 	return (0);
 }

@@ -1,7 +1,7 @@
-README.md
 main.c
 libft.a
 *.o
 main
 .vscode/
 libft.pdf
+test.c

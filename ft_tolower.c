@@ -6,11 +6,13 @@
 /*   By: yuyumaz <yuyumaz@student.42kocaeli.com.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/26 21:18:58 by yuyumaz           #+#    #+#             */
-/*   Updated: 2025/05/26 21:19:42 by yuyumaz          ###   ########.fr       */
+/*   Updated: 2025/05/27 20:14:48 by yuyumaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 int	ft_tolower(int c)
 {
-	
+	if (c >= 'A' && c <= 'Z')
+		return (c + 32);
+	return (c);
 }
