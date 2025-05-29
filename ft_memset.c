@@ -6,7 +6,7 @@
 /*   By: yuyumaz <yuyumaz@student.42kocaeli.com.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/26 20:13:57 by yuyumaz           #+#    #+#             */
-/*   Updated: 2025/05/26 20:45:40 by yuyumaz          ###   ########.fr       */
+/*   Updated: 2025/05/28 21:37:09 by yuyumaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,5 +22,5 @@ void	*ft_memset(void *s, int c, size_t n)
 		*((unsigned char *) s + i) = (unsigned char) c;
 		i++;
 	}
-	return (0);
+	return ((void *) s);
 }

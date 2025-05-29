@@ -1,0 +1,134 @@
+#!/usr/bin/env bash
+RED=$(tput setaf 1)
+GREEN=$(tput setaf 2)
+YELLOW=$(tput setaf 3)
+BLUE=$(tput setaf 4)
+RESET=$(tput sgr0)
+MSG_SUCC="${GREEN}+ Success!${RESET}  "
+MSG_ERR="${RED}x Error!${RESET}    "
+MSG_WARN="${YELLOW}! Warning${RESET}   "
+MSG_INFO="${BLUE}i Info${RESET}      "
+WRONG_INPUT="w4nn46043"
+TEST_SUCCESS="wh3nw1lluf41l"
+TEST_FAIL="66wpuf41l3d"
+
+banner() {
+  printf "%s\n" \
+' ________ _________  _______   ________  _________  _______   ________     ' \
+'|\  _____\\___   ___\\  ___ \ |\   ____\|\___   ___\\  ___ \ |\   __  \    ' \
+'\ \  \__/\|___ \  \_\ \   __/|\ \  \___|\|___ \  \_\ \   __/|\ \  \|\  \   ' \
+' \ \   __\    \ \  \ \ \  \_|/_\ \_____  \   \ \  \ \ \  \_|/_\ \   _  _\  ' \
+'  \ \  \_|     \ \  \ \ \  \_|\ \|____|\  \   \ \  \ \ \  \_|\ \ \  \\  \| ' \
+'   \ \__\       \ \__\ \ \_______\____\_\  \   \ \__\ \ \_______\ \__\\ _\ ' \
+'    \|__|        \|__|  \|_______|\_________\   \|__|  \|_______|\|__|\|__|' \
+'                                 \|_________|                              ' \
+'                                                                  wannago43' \
+'                                                                           '
+}
+
+# arg 1 is the message of the prompt
+yn_prompt() {
+  local answer
+  echo -n "${1} [y/N] "
+
+  IFS= read -r -n 1 answer
+  echo ""
+  case "$answer" in
+    [Yy]) return 0 ;;
+    *)    return 1 ;;
+  esac
+}
+
+file_exists() {
+  if [ -f "${1}" ];then
+    return 0
+  else
+    return 1
+  fi
+}
+
+set_src() {
+  local file_name compressed_headers compressed_srcs test_files main_str test_filelist
+  main_str="int main(int a, char *b[]){"
+  if [ -z "${1}" ]; then
+    return
+  else
+    file_name="${1}"
+  fi
+  if file_exists "${file_name}"; then
+    if ! yn_prompt "${MSG_WARN} Compressed source file exists. Do you want to overwrite?"; then
+      return
+    fi
+  fi
+  echo "${MSG_INFO} Compressing sources..."
+  compressed_srcs=$(find ../ -maxdepth 1 -name 'ft_*.c' -type f -print0 | xargs -0 python3 minifier.py | sed "/#include \"libft.h\"/d; /^$/d")
+  compressed_headers=$(find ../ -maxdepth 1 -name '*.h' -type f -print0 | xargs -0 python3 minifier.py | sed "/^$/d")
+  if [ "$(find ./srcs/ -maxdepth 1 -type f 2>/dev/null | wc -l)" -ne 0 ]; then
+    echo "${MSG_INFO} Appending test sources..."
+    test_files=$(find ./srcs/ -maxdepth 1 -name 'ft_*_tester.c' -type f -print0 | xargs -0 python3 minifier.py | sed "/^\s*#\(define\|include\)/d;/^\s*$/d")
+    test_filelist=$(find ./srcs/ -maxdepth 1 -name 'ft_*_tester.c' -type f)
+    for file in "${test_filelist[@]}"; do
+      file="${file##*/}"
+      file="${file%.*}"
+      main_str="${main_str}${file}(a,b);"
+    done
+    main_str="${main_str}return (0);}"
+  else
+    main_str="int main(int a, char *b[]){return (0);}"
+    echo "${MSG_WARN} No test file was found."
+  fi
+  printf "\
+#include <ctype.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+#include <unistd.h>
+#include <fcntl.h>
+#define WRNG \"%s\"
+#define SUCC \"%s\"
+#define FAIL \"%s\"
+%s
+%s
+%s
+%s
+" "${WRONG_INPUT}" "${TEST_SUCCESS}" "${TEST_FAIL}" "${compressed_headers}" "${compressed_srcs}" "${test_files}" "${main_str}"> "${file_name}"
+  echo "${MSG_SUCC} Minified sources"
+}
+
+
+compile_src() {
+  local file_name
+
+  if [ -z "${1}" ]; then
+    return
+  else
+    file_name="${1}"
+  fi
+  echo "${MSG_INFO} Compiling..."
+  if ! gcc "${file_name}" -o "${file_name%%.*}" 2>/dev/null; then
+    echo "${MSG_ERR} Something went wrong while compiling compressed source!"
+    return 1
+  else
+    echo "${MSG_SUCC} Done!"
+  fi
+}
+
+run_tests() {
+  return
+}
+
+main() {
+  local compressed_file
+  compressed_file="a.c"
+
+  stty -echo
+  clear
+  banner
+  set_src "${compressed_file}"
+  compile_src "${compressed_file}"
+  run_tests
+  echo
+  stty echo
+}
+
+main

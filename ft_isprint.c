@@ -6,11 +6,11 @@
 /*   By: yuyumaz <yuyumaz@student.42kocaeli.com.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/26 20:06:35 by yuyumaz           #+#    #+#             */
-/*   Updated: 2025/05/26 20:08:13 by yuyumaz          ###   ########.fr       */
+/*   Updated: 2025/05/29 00:13:55 by yuyumaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 int	ft_isprint(int c)
 {
-	return (c >= 32 && c <= 126);
+	return ((char) c >= (char) 32 && (char) c <= (char) 126);
 }
