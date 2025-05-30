@@ -6,7 +6,7 @@
 /*   By: yuyumaz <yuyumaz@student.42kocaeli.com.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/26 21:19:03 by yuyumaz           #+#    #+#             */
-/*   Updated: 2025/05/28 18:25:44 by yuyumaz          ###   ########.fr       */
+/*   Updated: 2025/05/30 15:33:44 by yuyumaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,5 @@ int	ft_toupper(int c)
 {
 	if (c >= 'a' && c <= 'z')
 		return (c - 32);
-	if (c >= -128 && c < -1)
-		return (c & 0xFF);
 	return (c);
 }

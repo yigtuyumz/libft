@@ -7,13 +7,18 @@
 #include <fcntl.h>
 #include <ctype.h>
 #include <limits.h>
+#include <stdarg.h>
 
+// dprintf writes to a file descriptor, not FILE stream.
+#define _log(fildes, fmt, ...) (void) dprintf(fildes, "[%s:%d] " fmt, __func__, __LINE__, ##__VA_ARGS__)
 #define _u __attribute__((unused))
+#define SIGN_BIT(val, dtype) (((dtype) (val)) >> ((sizeof(dtype) * 8) - 1))
 
-#include "libft.h"
+#include "../libft.h"
 
 // NOLINTBEGIN clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling
 
+int errfile;
 
 // fill n bytes of s with random values
 void random_bufferfill(void *s, size_t n)
@@ -35,18 +40,43 @@ void random_bufferfill(void *s, size_t n)
 	close(fd);
 }
 
+
+void open_errlog(const char *file_path)
+{
+	errfile = open(file_path, O_WRONLY | O_CREAT | O_TRUNC, 0666);
+	if (errfile < 0) {
+		fprintf(stderr, "[FAIL] trying to open %s for logging.", file_path);
+		exit(EXIT_FAILURE);
+	}
+
+}
+
+void close_errlog(void)
+{
+	if (close(errfile) < 0) {
+		fprintf(stderr, "[FAIL] trying to close log file! fildes: %d.\n", errfile);
+		exit(EXIT_FAILURE);
+	}
+}
+
+void append_errlog(const char *fmt, ...)
+{
+    va_list args;
+    va_start(args, fmt);
+    vdprintf(errfile, fmt, args);
+    va_end(args);
+}
+
+
 void assert_memcmp(const void *s1, const void *s2, size_t n, const char *desc)
 {
 	int std_result = memcmp(s1, s2, n);
 	int ft_result = ft_memcmp(s1, s2, n);
-	int match = (std_result == 0 && ft_result == 0) ||
-				(std_result < 0 && ft_result < 0) ||
-				(std_result > 0 && ft_result > 0);
 
-	if (match)
+	if (SIGN_BIT(std_result, int) == SIGN_BIT(ft_result, int))
 		printf("ft_memcmp\t[PASS] %s\n", desc);
 	else
-		fprintf(stderr, "ft_memcmp\t[FAIL] %s\n  memcmp: %d, ft_memcmp: %d\n", desc, std_result, ft_result);
+		append_errlog("ft_memcmp\t[FAIL] %s\n  memcmp: %d, ft_memcmp: %d\n", desc, std_result, ft_result);
 }
 
 void assert_memchr(const void *s, int c, size_t n, const char *desc)
@@ -56,19 +86,17 @@ void assert_memchr(const void *s, int c, size_t n, const char *desc)
 	if (std_result == ft_result)
 		printf("ft_memchr\t[PASS] %s\n", desc);
 	else
-		fprintf(stderr, "ft_memchr\t[FAIL] %s\n  memchr: %p, ft_memchr: %p\n", desc, std_result, ft_result);
+		append_errlog("ft_memchr\t[FAIL] %s\n  memchr: %p, ft_memchr: %p\n", desc, std_result, ft_result);
 }
 
 void assert_strncmp(const char *s1, const char *s2, size_t n, const char *desc)
 {
 	int std_result = strncmp(s1, s2, n);
 	int ft_result = ft_strncmp(s1, s2, n);
-	if ((std_result == 0 && ft_result == 0) ||
-		(std_result < 0 && ft_result < 0) ||
-		(std_result > 0 && ft_result > 0))
+	if (std_result == ft_result)
 		printf("ft_strncmp\t[PASS] %s\n", desc);
 	else
-		fprintf(stderr, "ft_strncmp\t[FAIL] %s\n  strncmp: %d, ft_strncmp: %d\n", desc, std_result, ft_result);
+		append_errlog("ft_strncmp\t[FAIL] %s\n  strncmp: %d, ft_strncmp: %d\n", desc, std_result, ft_result);
 }
 
 void assert_strrchr(const char *s, int c, const char *desc) {
@@ -77,7 +105,7 @@ void assert_strrchr(const char *s, int c, const char *desc) {
 	if (std_result == ft_result)
 		printf("ft_strrchr\t[PASS] %s\n", desc);
 	else
-		fprintf(stderr, "ft_strrchr\t[FAIL] %s\n  strrchr: %p, ft_strrchr: %p\n", desc, std_result, ft_result);
+		append_errlog("ft_strrchr\t[FAIL] %s\n  strrchr: %p, ft_strrchr: %p\n", desc, std_result, ft_result);
 }
 
 void assert_atoi(const char *s, const char *desc)
@@ -87,7 +115,7 @@ void assert_atoi(const char *s, const char *desc)
 	if (std_result == ft_result)
 		printf("ft_atoi\t\t[PASS] %s\n", desc);
 	else
-		fprintf(stderr, "ft_atoi\t\t[FAIL] %s\n  atoi: %d, ft_atoi: %d\n", desc, std_result, ft_result);
+		append_errlog("ft_atoi\t\t[FAIL] %s\n  atoi: %d, ft_atoi: %d\n", desc, std_result, ft_result);
 }
 
 // NOLINTBEGIN clang-analyzer-security.insecureAPI.bzero
@@ -101,7 +129,7 @@ void assert_bzero(void *s1, void *s2, size_t n, const char *desc)
 	if (result == 0)
 		printf("ft_bzero\t[PASS] %s\n", desc);
 	else
-		fprintf(stderr, "ft_bzero\t[FAIL] %s\n  result: %d differs at: %lu\n", desc, result, n);
+		append_errlog("ft_bzero\t[FAIL] %s\n  result: %d differs at: %lu\n", desc, result, n);
 }
 // NOLINTEND clang-analyzer-security.insecureAPI.bzero
 
@@ -115,7 +143,7 @@ void assert_tolower(int c, const char *desc)
 	if (std_result == ft_result)
 		printf("ft_tolower\t[PASS] %s\n", desc);
 	else
-		fprintf(stderr, "ft_tolower\t[FAIL] %s\n  given: %d result: %d expected: %d\n", desc, c2, ft_result, std_result);
+		append_errlog("ft_tolower\t[FAIL] %s\n  given: %d result: %d expected: %d\n", desc, c2, ft_result, std_result);
 }
 
 void assert_toupper(int c, const char *desc)
@@ -128,7 +156,7 @@ void assert_toupper(int c, const char *desc)
 	if (std_result == ft_result)
 		printf("ft_toupper\t[PASS] %s\n", desc);
 	else
-		fprintf(stderr, "ft_toupper\t[FAIL] %s\n  given: %d result: %d expected: %d\n", desc, c2, ft_result, std_result);
+		append_errlog("ft_toupper\t[FAIL] %s\n  given: %d result: %d expected: %d\n", desc, c2, ft_result, std_result);
 }
 
 void assert_memcpy(void *buff1, void *buff2, size_t n, const char *desc)
@@ -142,7 +170,7 @@ void assert_memcpy(void *buff1, void *buff2, size_t n, const char *desc)
 	if (result == 0 && ft_result == buff2)
 		printf("ft_memcpy\t[PASS] returns: %p %s\n", ft_result, desc);
 	else
-		fprintf(stderr, "ft_memcpy\t[FAIL] %s\n  returns: %p result: %d\n", desc, ft_result, result);
+		append_errlog("ft_memcpy\t[FAIL] %s\n  returns: %p result: %d\n", desc, ft_result, result);
 
 }
 
@@ -156,7 +184,7 @@ void assert_memset(void *buff, int val, size_t n, const char *desc)
 	if (result == 0 && ft_result == buff)
 		printf("ft_memset\t[PASS] returns: %p %s\n", ft_result, desc);
 	else
-		fprintf(stderr, "ft_memset\t[FAIL] %s\n  returns: %p result: %d\n", desc, ft_result, result);
+		append_errlog("ft_memset\t[FAIL] %s\n  returns: %p result: %d\n", desc, ft_result, result);
 
 }
 
@@ -168,11 +196,11 @@ void assert_strchr(const char *str, int val, const char *desc)
 	if (std_result == NULL && ft_result == NULL)
 		printf("ft_strchr\t[PASS] returns: NULL %s\n", desc);
 	else if (std_result == NULL || ft_result == NULL)
-		fprintf(stderr, "ft_strchr\t[FAIL] %s\n  One is NULL: ft=%p, std=%p\n", desc, ft_result, std_result);
+		append_errlog("ft_strchr\t[FAIL] %s\n  One is NULL: ft=%p, std=%p\n", desc, ft_result, std_result);
 	else if (ft_result == std_result)
 		printf("ft_strchr\t[PASS] returns: %p index: %ld %s\n", ft_result, (long)(ft_result - str), desc);
 	else
-		fprintf(stderr, "ft_strchr\t[FAIL] %s\n  returns: %p expected: %p\n", desc, ft_result, std_result);
+		append_errlog("ft_strchr\t[FAIL] %s\n  returns: %p expected: %p\n", desc, ft_result, std_result);
 }
 
 void assert_isprint(int val, const char *desc)
@@ -183,13 +211,161 @@ void assert_isprint(int val, const char *desc)
 	if (std_val == ft_val)
 		printf("ft_isprint\t[PASS] %s value: %d\n", desc, val);
 	else
-		fprintf(stderr, "ft_isprint\t[FAIL] %s\n  value: %d returns: %d expected: %d\n", desc, val, ft_val, std_val);
+		append_errlog("ft_isprint\t[FAIL] %s\n  value: %d returns: %d expected: %d\n", desc, val, ft_val, std_val);
+}
+
+void assert_isalnum(int val, const char *desc)
+{
+	int std_val = isalnum(val);
+	int ft_val = ft_isalnum(val);
+
+	if (std_val == ft_val)
+		printf("ft_isalnum\t[PASS] %s value: %d\n", desc, val);
+	else
+		append_errlog("ft_isalnum\t[FAIL] %s\n  value: %d returns: %d expected: %d\n", desc, val, ft_val, std_val);
+}
+
+void assert_isdigit(int val, const char *desc)
+{
+	int std_val = isdigit(val);
+	int ft_val = ft_isdigit(val);
+
+	if (std_val == ft_val)
+		printf("ft_isdigit\t[PASS] %s value: %d\n", desc, val);
+	else
+		append_errlog("ft_isdigit\t[FAIL] %s\n  value: %d returns: %d expected: %d\n", desc, val, ft_val, std_val);
+}
+
+void assert_isalpha(int val, const char *desc)
+{
+	int std_result = isupper(val) || islower(val);
+	int ft_result = ft_isalpha(val);
+
+	if (ft_result == std_result)
+		printf("ft_isalpha\t[PASS] %s value: %d\n", desc, val);
+	else
+		append_errlog("ft_isalpha[FAIL] %s\n  value: %016lX returns: %d expected: %d\n", desc, (unsigned long) val, ft_result, std_result);
+}
+
+void assert_strdup(const char *val, const char *desc)
+{
+	char *std_result = strdup(val);
+	char *ft_result = ft_strdup(val);
+
+	int result = strcmp((const char *) ft_result, (const char *) std_result);
+
+	if (result == 0)
+		printf("ft_strdup\t[PASS] %s\n", desc);
+	else
+		append_errlog("ft_strdup\t[FAIL] %s\n  strdup: \"%s\", ft_strdup: \"%s\"\n", desc, std_result, ft_result);
+
+	free(std_result);
+	free(ft_result);
+}
+
+/*
+ * ******************* *
+ */
+
+void strdup_tester(void)
+{
+	assert_strdup("", "Empty string");
+	assert_strdup("Hello, world!", "Normal string");
+	assert_strdup("1234567890", "Numeric string");
+	assert_strdup("Line1\nLine2", "String with newline");
+	assert_strdup("  leading and trailing  ", "String with spaces");
+	assert_strdup("!@#$\\%^&*()", "String with symbols");
+	assert_strdup("", "Empty string");
+	assert_strdup("a", "Single char");
+	assert_strdup("abc", "Short string");
+	assert_strdup("Hello, world!", "Normal string");
+	assert_strdup("1234567890", "Numeric string");
+	assert_strdup("Line1\nLine2", "String with newline");
+	assert_strdup("  leading and trailing  ", "String with spaces");
+	assert_strdup("!@#$%^&*()", "String with symbols");
+	assert_strdup("😊", "Unicode emoji");
+	assert_strdup("日本語の文字列", "Unicode Japanese");
+	assert_strdup("This is a very very very long string to test strdup functionality over long inputs", "Long string");
+	assert_strdup("Tab\tseparated\twords", "String with tabs");
+	assert_strdup("Null\0char", "String with embedded null");
+	assert_strdup("Mixed1234string5678with90numbers", "Mixed alphanumeric");
+	assert_strdup("UPPERCASE", "Uppercase string");
+	assert_strdup("lowercase", "Lowercase string");
+	assert_strdup("MiXeD CaSe", "Mixed case string");
+	assert_strdup("     ", "Only spaces");
+	assert_strdup("\n\r\t", "Only control characters");
+	assert_strdup("C-style\\nnewline", "String with escape sequences");
+	assert_strdup("End with null\0", "Ends with null char");
+	assert_strdup("Special chars: ~`<>?", "Special characters");
+	assert_strdup("RepeatRepeatRepeatRepeatRepeat", "Repeated substring");
+	assert_strdup("A", "Single uppercase");
+	assert_strdup("z", "Single lowercase");
+	assert_strdup("0", "Single digit");
+	assert_strdup(" ", "Single space");
+	assert_strdup("!@#$%^&*()_+", "Symbols");
+	assert_strdup("😊😊😊😊😊", "Repeated emoji");
+	assert_strdup("a\0b\0c", "Multiple null bytes");
+	assert_strdup("Normal sentence with punctuation.", "Sentence with punctuation");
+	assert_strdup("123 456 789", "Numbers with spaces");
+	assert_strdup("Tab\tand\nNewline", "Tabs and newlines");
+	assert_strdup("中文字符", "Chinese characters");
+	assert_strdup("Русские буквы", "Cyrillic letters");
+	assert_strdup("한국어 문자열", "Korean characters");
+	assert_strdup("🌍🚀✨", "Multiple emojis");
+	assert_strdup("Line1\nLine2\nLine3", "Multiple lines");
+	assert_strdup("Ends with space ", "Ends with space");
+	assert_strdup("  Starts with space", "Starts with space");
+	assert_strdup("Middle   spaces", "Multiple spaces in middle");
+	assert_strdup("Tabs\tin\tmiddle", "Tabs in middle");
+	assert_strdup("1234567890abcdef", "Hex digits");
+	assert_strdup("Special \x7F char", "DEL char");
+	assert_strdup("Embedded\0null", "Embedded null char");
+	assert_strdup("Empty\0\0\0", "Multiple embedded nulls");
+	assert_strdup("😊Mixed ASCII and emoji😊", "Mixed ASCII and emoji");
+	assert_strdup("New\nline and tab\t", "New line and tab");
+}
+
+void isalpha_tester(void)
+{
+	for (int i = 'a'; i <= 'z'; i++)
+		assert_isalpha(i, "Lowercase letters");
+	for (int i = 'A'; i <= 'Z'; i++)
+		assert_isalpha(i, "Uppercase letters");
+	for (int i = -128; i <= 127; i++) {
+		if (isprint(i))
+			assert_isalpha(i, "Printable ASCII characters.");
+		else
+			assert_isalpha(i, "non-printable ASCII characters.");
+	}
+
+}
+
+void isdigit_tester(void)
+{
+	for (int i = -128; i <= 127; i++) {
+		if (isprint(i)) {
+			assert_isdigit(i, "Printable ASCII characters.");
+		} else {
+			assert_isdigit(i, "Non-printable ASCII characters.");
+		}
+	}
+}
+
+void isalnum_tester(void)
+{
+	for (int i = -128; i <= 127; i++) {
+		if (isprint(i)) {
+			assert_isdigit(i, "Printable ASCII characters.");
+		} else {
+			assert_isdigit(i, "Non-printable ASCII characters.");
+		}
+	}
 }
 
 void isprint_tester(void)
 {
-	for (int i = -10000; i <= 10000; i++)
-		assert_isprint(i, "Integer values between -10000 and 10000");
+	for (int i = -128; i <= 127; i++)
+		assert_isprint(i, "ASCII Character set.");
 }
 
 void strchr_tester(void)
@@ -197,15 +373,15 @@ void strchr_tester(void)
 	char buff[2048];
 
 	memcpy(buff, "this is a buffer!\n", 19);
-	assert_strchr(buff, 'f', "Find first 'f' in string");
+	assert_strchr(buff, 'f', "Find first 'f' in string.");
 
 	ft_memset(buff, 0, 2048);
 	random_bufferfill(buff, 2047);
 	buff[2047] = 0;
-	assert_strchr(buff, 0, "Find first 0");
+	assert_strchr(buff, 0, "Find first 0.");
 
 	buff[0] = '\0';
-	assert_strchr(buff, 'a', "Empty string, search for 'a'");
+	assert_strchr(buff, 'a', "Empty string, search for 'a'.");
 	assert_strchr(buff, '\0', "Empty string, search for null terminator");
 
 	buff[0] = 'x';
@@ -484,6 +660,10 @@ void memcmp_tester(void)
 	assert_memcmp("abc", "abc", 3, "Same strings");
 
 	assert_memcmp("abc", "xbc", 3, "First byte differs");
+	assert_memcmp("bbc", "xbc", 3, "First byte differs");
+	assert_memcmp("cbc", "xbc", 3, "First byte differs");
+	assert_memcmp("dbc", "xbc", 3, "First byte differs");
+	assert_memcmp("ebc", "xbc", 3, "First byte differs");
 
 	assert_memcmp("abc", "abd", 3, "Last byte differs");
 
@@ -763,9 +943,12 @@ void strrchr_tester(void)
 
 }
 
-int main(void)
+int main(int argc, char *argv[])
 {
-	// memcmp_tester();
+	open_errlog("err.log");
+
+
+	memcmp_tester();
 	// memchr_tester();
 	// strncmp_tester();
 	// strrchr_tester();
@@ -776,7 +959,12 @@ int main(void)
 	// memcpy_tester();
 	// memset_tester();
 	// strchr_tester();
-	isprint_tester();
+	// isprint_tester();
+	// isdigit_tester();
+	// isalpha_tester();
+	// isalnum_tester();
+	strdup_tester();
+	close_errlog();
 	return (0);
 }
 

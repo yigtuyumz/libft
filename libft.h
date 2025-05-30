@@ -6,12 +6,16 @@
 /*   By: yuyumaz <yuyumaz@student.42kocaeli.com.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/26 19:50:57 by yuyumaz           #+#    #+#             */
-/*   Updated: 2025/05/28 03:57:09 by yuyumaz          ###   ########.fr       */
+/*   Updated: 2025/05/30 19:52:22 by yuyumaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef LIBFT_H
 # define LIBFT_H
+
+# ifdef __DEBUG__
+void	*ft_print_memory(void *addr, unsigned int size);
+# endif /* __DEBUG__ */
 
 # include <unistd.h>
 
@@ -35,5 +39,6 @@ int		ft_strncmp(const char *s1, const char *s2, size_t n);
 char	*ft_strrchr(const char *s, int c);
 int		ft_tolower(int c);
 int		ft_toupper(int c);
+char	*ft_strdup(const char *s);
 
 #endif /* LIBFT_H */

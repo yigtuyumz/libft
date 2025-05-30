@@ -4,7 +4,6 @@ libft.a
 main
 .vscode/
 libft.pdf
-test.c
 .venv/
 *.log
 test

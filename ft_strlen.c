@@ -6,7 +6,7 @@
 /*   By: yuyumaz <yuyumaz@student.42kocaeli.com.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/26 20:12:10 by yuyumaz           #+#    #+#             */
-/*   Updated: 2025/05/26 20:46:56 by yuyumaz          ###   ########.fr       */
+/*   Updated: 2025/05/30 15:33:29 by yuyumaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@ size_t	ft_strlen(const char *s)
 	size_t	i;
 
 	i = 0;
-	while (s[i])
+	while (*(s + i))
 		i++;
 	return (i);
 }

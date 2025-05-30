@@ -6,11 +6,12 @@
 /*   By: yuyumaz <yuyumaz@student.42kocaeli.com.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/26 19:48:23 by yuyumaz           #+#    #+#             */
-/*   Updated: 2025/05/26 20:43:21 by yuyumaz          ###   ########.fr       */
+/*   Updated: 2025/05/30 18:08:42 by yuyumaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 int	ft_isalpha(int c)
 {
-	return ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z'));
+	char cc = (char) c;
+	return ((cc >= 'a' && cc <= 'z') || (cc >= 'A' && cc <= 'Z'));
 }
