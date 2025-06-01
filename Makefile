@@ -22,7 +22,9 @@ FT_SRCS =	ft_atoi.c				\
 			ft_strrchr.c			\
 			ft_tolower.c			\
 			ft_toupper.c			\
-			ft_strdup.c
+			ft_strdup.c				\
+			ft_memmove.c			\
+			ft_substr.c
 
 
 OBJS = $(FT_SRCS:.c=.o)

@@ -1,27 +1,28 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_strchr.c                                        :+:      :+:    :+:   */
+/*   ft_substr.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: yuyumaz <yuyumaz@student.42kocaeli.com.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/05/26 23:40:10 by yuyumaz           #+#    #+#             */
-/*   Updated: 2025/06/01 19:26:08 by yuyumaz          ###   ########.fr       */
+/*   Created: 2025/06/01 14:55:17 by yuyumaz           #+#    #+#             */
+/*   Updated: 2025/06/01 16:45:52 by yuyumaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-char	*ft_strchr(const char *s, int c)
-{
-	const unsigned char	*d;
+#include <stdlib.h>
 
-	d = (const unsigned char *) s;
-	while (*d)
-	{
-		if (*d == (unsigned char) c)
-			return (d);
-		d++;
-	}
-	if (c == 0)
-		return ((char *) d);
-	return ((char *) 0);
+char	*ft_substr(const char *s, unsigned int start, size_t len)
+{
+	char	*ret;
+
+	ret = (char *) malloc(sizeof(char) * (len + 1));
+	if (!ret)
+		return (ret);
+
+	while (*(s + start) && len--)
+		*(ret + len) = *(s + start);
+
+	return (ret);
 }
+

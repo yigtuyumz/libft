@@ -6,11 +6,16 @@
 /*   By: yuyumaz <yuyumaz@student.42kocaeli.com.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/27 01:54:56 by yuyumaz           #+#    #+#             */
-/*   Updated: 2025/05/27 21:47:58 by yuyumaz          ###   ########.fr       */
+/*   Updated: 2025/06/01 19:43:53 by yuyumaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft.h"
+static long int	strtol(const char *nptr, char **endptr, int base)
+{
+	if (!nptr)
+		return (0);
+}
 
 static int	ft_isspace(int c)
 {

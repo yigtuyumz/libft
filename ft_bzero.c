@@ -6,7 +6,7 @@
 /*   By: yuyumaz <yuyumaz@student.42kocaeli.com.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/26 20:47:18 by yuyumaz           #+#    #+#             */
-/*   Updated: 2025/05/26 20:50:46 by yuyumaz          ###   ########.fr       */
+/*   Updated: 2025/06/01 19:35:50 by yuyumaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,12 +14,14 @@
 
 void	ft_bzero(void *s, size_t n)
 {
+	unsigned char	*p;
 	size_t	i;
 
+	p = (unsigned char *) s;
 	i = 0;
 	while (i < n)
 	{
-		*((unsigned char *) s + i) = 0;
+		*(p + i) = 0;
 		i++;
 	}
 }

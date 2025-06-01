@@ -2,7 +2,8 @@ CC = cc
 CFLAGS =
 NAME = ../libft.a
 
-SRCS = ft_print_memory.c
+SRCS =	ft_print_memory.c		\
+		ft_print_memory_fd.c
 OBJS = $(SRCS:.c=.o)
 
 

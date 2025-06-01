@@ -6,7 +6,7 @@
 /*   By: yuyumaz <yuyumaz@student.42kocaeli.com.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/27 01:04:17 by yuyumaz           #+#    #+#             */
-/*   Updated: 2025/05/27 20:13:09 by yuyumaz          ###   ########.fr       */
+/*   Updated: 2025/06/01 19:33:23 by yuyumaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,13 +14,15 @@
 
 void	*ft_memchr(const void *s, int c, size_t n)
 {
-	size_t	i;
+	const unsigned char	*p;
+	size_t				i;
 
+	p = (const unsigned char *) s;
 	i = 0;
 	while (i < n)
 	{
-		if (*((unsigned char *) s + i) == (unsigned char) c)
-			return ((void *) s + i);
+		if (*(p + i) == (unsigned char) c)
+			return ((void *) p + i);
 		i++;
 	}
 	return (0);

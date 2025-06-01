@@ -14,6 +14,7 @@
 #define _u __attribute__((unused))
 #define SIGN_BIT(val, dtype) (((dtype) (val)) >> ((sizeof(dtype) * 8) - 1))
 
+#define __DEBUG__
 #include "../libft.h"
 
 // NOLINTBEGIN clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling
@@ -93,7 +94,7 @@ void assert_strncmp(const char *s1, const char *s2, size_t n, const char *desc)
 {
 	int std_result = strncmp(s1, s2, n);
 	int ft_result = ft_strncmp(s1, s2, n);
-	if (std_result == ft_result)
+	if (SIGN_BIT(std_result, int) == SIGN_BIT(ft_result, int))
 		printf("ft_strncmp\t[PASS] %s\n", desc);
 	else
 		append_errlog("ft_strncmp\t[FAIL] %s\n  strncmp: %d, ft_strncmp: %d\n", desc, std_result, ft_result);
@@ -148,15 +149,13 @@ void assert_tolower(int c, const char *desc)
 
 void assert_toupper(int c, const char *desc)
 {
-	int c1 = c;
-	int c2 = c;
 	int std_result = toupper(c);
-	int ft_result = ft_toupper(c1);
+	int ft_result = ft_toupper(c);
 
 	if (std_result == ft_result)
 		printf("ft_toupper\t[PASS] %s\n", desc);
 	else
-		append_errlog("ft_toupper\t[FAIL] %s\n  given: %d result: %d expected: %d\n", desc, c2, ft_result, std_result);
+		append_errlog("ft_toupper\t[FAIL] %s\n  given: %d result: %d expected: %d\n", desc, c, ft_result, std_result);
 }
 
 void assert_memcpy(void *buff1, void *buff2, size_t n, const char *desc)
@@ -263,9 +262,129 @@ void assert_strdup(const char *val, const char *desc)
 	free(ft_result);
 }
 
+void assert_memmove(void *a, void *b, size_t n, void *src, const char *desc)
+{
+	void *std_result = memmove(a, src, n);
+	void *ft_result = ft_memmove(b, src, n);
+
+	int result = memcmp(std_result, ft_result, n);
+	if (result == 0 && ft_result == b)
+		printf("ft_memmove\t[PASS] %s\n", desc);
+	else {
+		append_errlog("ft_memmmove\t[FAIL] %s\n", desc);
+		append_errlog("  std_result:\n");
+		ft_print_memory_fd(errfile, std_result, n);
+		append_errlog("  ft_result:\n");
+		ft_print_memory_fd(errfile, ft_result, n);
+	}
+}
+
+void assert_strnstr(const char *s1, const char *s2, const char *desc)
+{
+
+}
+
+void assert_substr(const char *s1, unsigned int start, size_t n, const char *expected, const char *desc)
+{
+	char *sub = ft_substr(s1, start, n);
+	int result = memcmp(sub, expected, (strlen(expected) + 1));
+
+	if (result == 0)
+		printf("ft_substr\t[PASS] %s\n", desc);
+	else
+		append_errlog("ft_substr\t[FAIL] %s\n  result: '%s' expected: '%s'\n", desc, sub, expected);
+
+	free(sub);
+}
+
+
 /*
  * ******************* *
+ * ******************* *
+ * ******************* *
+ * ******************* *
+ * ******************* *
+ * ******************* *
+ * ******************* *
+ * ******************* *
+ * ******************* *
+ * ******************* *
+ * ******************* *
+ * ******************* *
+ * ******************* *
  */
+
+void substr_tester(void)
+{
+	assert_substr("wagwag", 0, 3, "wag", "Basic Test");
+	assert_substr("", 10, 10, "", "Empty str with too big starting index");
+	assert_substr("The Cake is a Lie", "", 17, 1, "End of the str");
+}
+
+void strnstr_tester(void)
+{
+
+}
+
+void memmove_tester(void)
+{
+	char buffer1[100];
+	char buffer2[100];
+	const char *src = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+	memcpy(buffer1, src, 26);
+	memcpy(buffer2, src, 26);
+	assert_memmove(buffer1 + 10, buffer2 + 0, 10, buffer2 + 0, "No overlap");
+
+	memcpy(buffer1, src, 26);
+	memcpy(buffer2, src, 26);
+	assert_memmove(buffer1, buffer2, 10, buffer2 + 5, "Overlap forward");
+
+	memcpy(buffer1, src, 26);
+	memcpy(buffer2, src, 26);
+	assert_memmove(buffer1 + 5, buffer2 + 0, 10, buffer2 + 0, "Overlap backward");
+
+	memcpy(buffer1, src, 26);
+	memcpy(buffer2, src, 26);
+	assert_memmove(buffer1, buffer2, 10, buffer2, "Same pointer");
+
+	memcpy(buffer1, src, 26);
+	memcpy(buffer2, src, 26);
+	assert_memmove(buffer1 + 10, buffer2 + 5, 0, buffer2 + 5, "Size zero");
+
+
+	memcpy(buffer1, src, 26);
+	memcpy(buffer2, src, 26);
+	assert_memmove(buffer1, buffer2, 26, buffer2, "Full buffer overlap");
+
+	memcpy(buffer1, src, 26);
+	memcpy(buffer2, src, 26);
+	assert_memmove(buffer1, buffer2, 10, buffer2 + 1, "Overlap by 1 byte (forward)");
+
+	memcpy(buffer1, src, 26);
+	memcpy(buffer2, src, 26);
+	assert_memmove(buffer1 + 1, buffer2, 10, buffer2, "Overlap by 1 byte (backward)");
+
+	memcpy(buffer1, src, 26);
+	memcpy(buffer2, src, 26);
+	assert_memmove(buffer1 + 5, buffer2 + 2, 1, buffer2 + 2, "Tiny buffer (n = 1)");
+
+	memcpy(buffer1, src, 26);
+	memcpy(buffer2, src, 26);
+	assert_memmove(buffer1 + 3, buffer2 + 7, 8, buffer2 + 7, "Misaligned offset");
+
+	assert_memmove(NULL, NULL, 0, NULL, "NULL + size 0 — legal no-op");
+
+	char *heap1 = malloc(1000);
+	char *heap2 = malloc(1000);
+	for (int i = 0; i < 1000; i++) {
+		heap1[i] = i % 256;
+		heap2[i] = i % 256;
+	}
+	assert_memmove(heap1 + 200, heap2 + 100, 500, heap2 + 100, "Large copy with overlap");
+	free(heap1);
+	free(heap2);
+}
 
 void strdup_tester(void)
 {
@@ -323,6 +442,59 @@ void strdup_tester(void)
 	assert_strdup("Empty\0\0\0", "Multiple embedded nulls");
 	assert_strdup("😊Mixed ASCII and emoji😊", "Mixed ASCII and emoji");
 	assert_strdup("New\nline and tab\t", "New line and tab");
+
+	char c0[] = {0, '\0'};
+	char c127[] = {127, '\0'};
+	char c255[] = {(char)255, '\0'};
+	assert_strdup(c0, "Single \\0");
+	assert_strdup(c127, "Single DEL");
+	assert_strdup(c255, "Single 0xFF");
+
+	char e1[] = {'a', '\0', 'b', '\0', 'c', '\0'};
+	assert_strdup(e1, "Multiple embedded nulls");
+
+	char ascii_print[96 + 1];
+	for (int i = 0; i < 96; i++)
+		ascii_print[i] = 32 + i;
+	ascii_print[96] = '\0';
+	assert_strdup(ascii_print, "All printable ASCII");
+
+	char ascii_all[128 + 1];
+	for (int i = 0; i < 128; i++)
+		ascii_all[i] = i;
+	ascii_all[128] = '\0';
+	assert_strdup(ascii_all, "All ASCII (0-127)");
+
+	char alt1[] = {'A', 0, 'B', 0, 'C', 0, 'D', 0, 'E', 0};
+	assert_strdup(alt1, "Alternating null and ASCII");
+
+	char rep[512 + 1];
+	for (int i = 0; i < 512; i++)
+		rep[i] = "XYZ"[i % 3];
+	rep[512] = '\0';
+	assert_strdup(rep, "Repeated XYZ pattern 512");
+
+	char *large = malloc(1000000);
+	if (!large) exit(1);
+	memset(large, 'A', 999999);
+	large[999999] = '\0';
+	assert_strdup(large, "Large block (1 million A's)");
+	free(large);
+
+	char padded[] = "___target___";
+	assert_strdup(padded + 3, "Misaligned pointer");
+
+	char midctrl[] = {'H', 'e', 1, 2, 3, 'l', 'l', 'o', 0};
+	assert_strdup(midctrl, "Control bytes in middle");
+
+	char *heap = malloc(32);
+	if (!heap) exit(1);
+	strcpy(heap, "heap-based duplication");
+	assert_strdup(heap, "Heap content");
+	free(heap);
+
+	char tailnull[] = "Valid until here\0garbage";
+	assert_strdup(tailnull, "Truncated with garbage after null");
 }
 
 void isalpha_tester(void)
@@ -524,12 +696,6 @@ void toupper_tester(void)
 			assert_toupper(c, "Non-Printable ASCII characters only");
 		}
 	}
-
-	for (int c = -1000; c <= 1000; c++)
-		assert_toupper(c, "Integer values between -1000 and 1000");
-
-	for (int c = 100000; c >= 101000; c--)
-		assert_toupper(c, "Integer values between 100000 and 101000");
 }
 
 void tolower_tester(void)
@@ -948,7 +1114,7 @@ int main(int argc, char *argv[])
 	open_errlog("err.log");
 
 
-	memcmp_tester();
+	// memcmp_tester();
 	// memchr_tester();
 	// strncmp_tester();
 	// strrchr_tester();
@@ -963,7 +1129,8 @@ int main(int argc, char *argv[])
 	// isdigit_tester();
 	// isalpha_tester();
 	// isalnum_tester();
-	strdup_tester();
+	// strdup_tester();
+	memmove_tester();
 	close_errlog();
 	return (0);
 }
