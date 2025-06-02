@@ -6,7 +6,7 @@
 /*   By: yuyumaz <yuyumaz@student.42kocaeli.com.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/31 13:04:15 by yuyumaz           #+#    #+#             */
-/*   Updated: 2025/06/01 19:30:18 by yuyumaz          ###   ########.fr       */
+/*   Updated: 2025/06/03 00:18:42 by yuyumaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,13 +16,15 @@ static int	does_it_overlap(void *a, void *b, size_t n)
 {
 	const unsigned char	*p1;
 	const unsigned char	*p2;
+	size_t				diff;
 
 	p1 = (const unsigned char *) a;
 	p2 = (const unsigned char *) b;
 	if (p1 > p2)
-		return ((p1 - p2) < n);
+		diff = p1 - p2;
 	else
-		return ((p2 - p1) < n);
+		diff = p2 - p1;
+	return (diff < n);
 }
 
 void	*ft_memmove(void *dest, const void *src, size_t n)

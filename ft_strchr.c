@@ -6,7 +6,7 @@
 /*   By: yuyumaz <yuyumaz@student.42kocaeli.com.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/26 23:40:10 by yuyumaz           #+#    #+#             */
-/*   Updated: 2025/06/01 19:26:08 by yuyumaz          ###   ########.fr       */
+/*   Updated: 2025/06/02 23:14:47 by yuyumaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,7 @@ char	*ft_strchr(const char *s, int c)
 	while (*d)
 	{
 		if (*d == (unsigned char) c)
-			return (d);
+			return ((char *) d);
 		d++;
 	}
 	if (c == 0)

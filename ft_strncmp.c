@@ -6,7 +6,7 @@
 /*   By: yuyumaz <yuyumaz@student.42kocaeli.com.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/27 00:45:32 by yuyumaz           #+#    #+#             */
-/*   Updated: 2025/06/01 19:21:26 by yuyumaz          ###   ########.fr       */
+/*   Updated: 2025/06/02 23:10:50 by yuyumaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,6 @@ int	ft_strncmp(const char *s1, const char *s2, size_t n)
 {
 	const unsigned char	*a;
 	const unsigned char	*b;
-
 
 	a = (const unsigned char *) s1;
 	b = (const unsigned char *) s2;

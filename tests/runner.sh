@@ -125,7 +125,7 @@ main() {
   clear
   banner
   set_src "${compressed_file}"
-  compile_src "${compressed_file}"
+  # compile_src "${compressed_file}"
   run_tests
   echo
   stty echo
