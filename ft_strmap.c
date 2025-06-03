@@ -6,10 +6,11 @@
 /*   By: yuyumaz <yuyumaz@student.42kocaeli.com.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/02 21:20:24 by yuyumaz           #+#    #+#             */
-/*   Updated: 2025/06/02 21:58:54 by yuyumaz          ###   ########.fr       */
+/*   Updated: 2025/06/03 00:38:02 by yuyumaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#include <stdlib.h>
 #include "libft.h"
 
 char	*ft_strmap(const char *s, char (*f)(char))

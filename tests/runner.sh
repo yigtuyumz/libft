@@ -48,14 +48,14 @@ file_exists() {
 }
 
 set_src() {
-  local file_name compressed_headers compressed_srcs test_files main_str test_filelist
+  local out_fil_name compressed_headers compressed_srcs test_files main_str test_filelist
   main_str="int main(int a, char *b[]){"
   if [ -z "${1}" ]; then
     return
   else
-    file_name="${1}"
+    out_fil_name="${1}"
   fi
-  if file_exists "${file_name}"; then
+  if file_exists "${out_fil_name}"; then
     if ! yn_prompt "${MSG_WARN} Compressed source file exists. Do you want to overwrite?"; then
       return
     fi
@@ -63,12 +63,14 @@ set_src() {
   echo "${MSG_INFO} Compressing sources..."
   compressed_srcs=$(find ../ -maxdepth 1 -name 'ft_*.c' -type f -print0 | xargs -0 python3 minifier.py | sed "/#include \"libft.h\"/d; /^$/d")
   compressed_headers=$(find ../ -maxdepth 1 -name '*.h' -type f -print0 | xargs -0 python3 minifier.py | sed "/^$/d")
-  if [ "$(find ./srcs/ -maxdepth 1 -type f 2>/dev/null | wc -l)" -ne 0 ]; then
+  if [ "$(find ./extra/ -maxdepth 1 -name '*.c' -type f 2>/dev/null | wc -l)" -ne 0 ]; then
     echo "${MSG_INFO} Appending test sources..."
-    test_files=$(find ./srcs/ -maxdepth 1 -name 'ft_*_tester.c' -type f -print0 | xargs -0 python3 minifier.py | sed "/^\s*#\(define\|include\)/d;/^\s*$/d")
-    test_filelist=$(find ./srcs/ -maxdepth 1 -name 'ft_*_tester.c' -type f)
+    test_files=$(find ./extra/ -maxdepth 1 -name '*.c' -type f -print0 | xargs -0 python3 minifier.py | sed "/^\s*#\(define\|include\)/d;/^\s*$/d")
+    test_filelist=$(find ./extra/ -maxdepth 1 -name '*.c' -type f)
     for file in "${test_filelist[@]}"; do
+      # get only filename; ./path/file.tar.gz -> file.tar.gz
       file="${file##*/}"
+      # remove extension; ./path/file.tar.gz -> file.tar
       file="${file%.*}"
       main_str="${main_str}${file}(a,b);"
     done
@@ -84,6 +86,8 @@ set_src() {
 #include <string.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <signal.h>
+#define __DEBUG__
 #define WRNG \"%s\"
 #define SUCC \"%s\"
 #define FAIL \"%s\"
@@ -91,7 +95,9 @@ set_src() {
 %s
 %s
 %s
-" "${WRONG_INPUT}" "${TEST_SUCCESS}" "${TEST_FAIL}" "${compressed_headers}" "${compressed_srcs}" "${test_files}" "${main_str}"> "${file_name}"
+" "${WRONG_INPUT}" "${TEST_SUCCESS}" "${TEST_FAIL}" "${compressed_headers}" "${compressed_srcs}" "${test_files}" "${main_str}"> "${out_fil_name}"
+  # remove redundant header includes, which comes from C sources.
+  sed -i '17,$ {/include/d}' "${out_fil_name}"
   echo "${MSG_SUCC} Minified sources"
 }
 
@@ -119,7 +125,7 @@ run_tests() {
 
 main() {
   local compressed_file
-  compressed_file="a.c"
+  compressed_file="out.c"
 
   stty -echo
   clear

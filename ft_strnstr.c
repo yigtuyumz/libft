@@ -6,7 +6,7 @@
 /*   By: yuyumaz <yuyumaz@student.42kocaeli.com.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/31 15:34:42 by yuyumaz           #+#    #+#             */
-/*   Updated: 2025/05/31 15:47:16 by yuyumaz          ###   ########.fr       */
+/*   Updated: 2025/06/03 03:31:11 by yuyumaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,5 +19,20 @@
 //      are not searched.
 char	*ft_strnstr(const char *big, const char *little, size_t len)
 {
-	return (NULL);
+	size_t	i;
+	size_t	j;
+
+	if (*little == 0)
+		return ((char *) big);
+	i = 0;
+	while (i < len && *(big + i))
+	{
+		j = 0;
+		while (i + j < len && *(little + j) && *(little + j) == *(big + i + j))
+			j++;
+		if (*(little + j) == 0)
+			return ((char *) little + j);
+		i++;
+	}
+	return ((char *) 0);
 }

@@ -8,6 +8,7 @@
 #include <ctype.h>
 #include <limits.h>
 #include <stdarg.h>
+#include <signal.h>
 
 // dprintf writes to a file descriptor, not FILE stream.
 #define _log(fildes, fmt, ...) (void) dprintf(fildes, "[%s:%d] " fmt, __func__, __LINE__, ##__VA_ARGS__)
@@ -68,6 +69,17 @@ void append_errlog(const char *fmt, ...)
     va_end(args);
 }
 
+void segfault_handler(int signum)
+{
+	append_errlog("segfault happens!\n");
+	_log(errfile, "seggo\n");
+	exit(1);
+}
+
+void activate_signals(void)
+{
+	signal(SIGSEGV, segfault_handler);
+}
 
 void assert_memcmp(const void *s1, const void *s2, size_t n, const char *desc)
 {
@@ -279,23 +291,18 @@ void assert_memmove(void *a, void *b, size_t n, void *src, const char *desc)
 	}
 }
 
-void assert_strnstr(const char *s1, const char *s2, const char *desc)
+void assert_substr(const char *s, unsigned int start, size_t len, const char *expected, const char *desc)
 {
+	char *ft_result = ft_substr(s, start, len);
 
-}
-
-void assert_substr(const char *s1, unsigned int start, size_t n, const char *expected, const char *desc)
-{
-	char *sub = ft_substr(s1, start, n);
-	int result = memcmp(sub, expected, (strlen(expected) + 1));
-
-	if (result == 0)
-		printf("ft_substr\t[PASS] %s\n", desc);
+	if (!ft_result || strcmp(ft_result, expected) != 0)
+		append_errlog("ft_substr\t[FAIL] %s\n  got: \"%s\", expected: \"%s\"\n", desc, ft_result, expected);
 	else
-		append_errlog("ft_substr\t[FAIL] %s\n  result: '%s' expected: '%s'\n", desc, sub, expected);
+		printf("ft_substr\t[PASS] %s\n", desc);
 
-	free(sub);
+	free(ft_result);
 }
+
 
 
 /*
@@ -316,13 +323,71 @@ void assert_substr(const char *s1, unsigned int start, size_t n, const char *exp
 
 void substr_tester(void)
 {
-	assert_substr("wagwag", 0, 3, "wag", "Basic Test");
-	assert_substr("", 10, 10, "", "Empty str with too big starting index");
-	assert_substr("The Cake is a Lie", "", 17, 1, "End of the str");
-}
+	assert_substr("hello world", 6, 5, "world", "normal case");
+	assert_substr("hello", 0, 3, "hel", "beginning");
+	assert_substr("abc", 5, 2, "", "start beyond length");
+	assert_substr("abcdef", 2, 10, "cdef", "len overflow");
+	
+	// 1. start ve len birlikte taşma yapar (unsigned overflow ihtimali)
+	assert_substr("abcdef", UINT_MAX - 1, 10, "", "start near UINT_MAX, len causes wrap");
 
-void strnstr_tester(void)
-{
+	// 2. len = SIZE_MAX: overread potansiyeli
+	assert_substr("12345", 1, -1, "2345", "len = SIZE_MAX but safe start");
+
+	// 3. start = strlen, len = SIZE_MAX
+	assert_substr("12345", 5, -1, "", "start == strlen, len = SIZE_MAX");
+
+	// 4. start = 0, len = SIZE_MAX on empty string
+	assert_substr("", 0, -1, "", "empty string, extreme len");
+
+	// 5. tek karakterlik string, çok uzun len
+	assert_substr("A", 0, 10000, "A", "single char, extreme len");
+
+	// 6. normal string, ama null karakter içeriyor
+	assert_substr("abc\0def", 0, 7, "abc", "string with embedded nulls");
+
+	// 7. string içinde sadece '\n', '\t', ' ' gibi kontrol karakterleri
+	assert_substr("\t \n \t", 1, 2, " \n", "whitespace chars in substr");
+
+	// 8. aynı karakterden oluşan devasa string
+	char long_a[10001]; memset(long_a, 'a', 10000); long_a[10000] = '\0';
+	assert_substr(long_a, 9990, 15, "aaaaaaaaaa", "very large string, end substr");
+
+	// 9. sadece '\0' karakterleriyle dolu bir string (ama string uzunluğu 5 gibi varsayalım)
+	assert_substr("\0\0\0\0\0", 0, 5, "", "null bytes only, len 5");
+
+	// 10. start tam olarak 2^31 (overflow edge)
+	assert_substr("abc", (1U << 31), 1, "", "start at 2^31 boundary, len 1");
+
+	// 11. start = -1 (geçersiz ama unsigned olduğundan wrap yapar)
+	assert_substr("abcdef", (unsigned)-1, 2, "", "start = -1 casted to unsigned");
+
+	// 12. string içinde UTF-8 çok baytlı karakterler
+	assert_substr("açığüö", 1, 2, "ç", "utf-8 multi-byte safe?");
+
+	// 13. tek karakterli string, start > 1
+	assert_substr("Z", 100, 1, "", "single-char string, invalid start");
+
+	// 14. whitespace'lerle başlayan ve biten dize
+	assert_substr("   middle   ", 3, 6, "middle", "trimmed whitespace substring");
+
+	// 15. sıfır uzunlukta ama geçerli pozisyondan substring
+	assert_substr("nonempty", 3, 0, "", "len 0 at middle");
+
+	// 16. tümüyle emoji içeren string (UTF-8, çok bayt)
+	assert_substr("😀😃😄😁", 2, 1, "😄", "emoji multi-byte substr");
+
+	// 17. NULL string verildiğinde nasıl davranıyor?
+	assert_substr(NULL, 0, 1, NULL, "NULL input string");
+
+	// 18. expected NULL ama çıkan string non-NULL ise hata
+	assert_substr("abc", 9999, 5, "", "start way beyond length");
+
+	// 19. very large but valid values (near size_t max)
+	assert_substr("abc", -1 - 2, 2, "", "near size_t overflow");
+
+	// 20. Tümüyle boşluklardan oluşan string
+	assert_substr("          ", 2, 5, "     ", "all-space string, mid slice");
 
 }
 
@@ -1112,7 +1177,7 @@ void strrchr_tester(void)
 int main(int argc, char *argv[])
 {
 	open_errlog("err.log");
-
+	activate_signals();
 
 	// memcmp_tester();
 	// memchr_tester();
@@ -1130,7 +1195,8 @@ int main(int argc, char *argv[])
 	// isalpha_tester();
 	// isalnum_tester();
 	// strdup_tester();
-	memmove_tester();
+	// memmove_tester();
+	substr_tester();
 	close_errlog();
 	return (0);
 }
