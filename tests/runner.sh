@@ -12,6 +12,9 @@ WRONG_INPUT="w4nn46043"
 TEST_SUCCESS="wh3nw1lluf41l"
 TEST_FAIL="66wpuf41l3d"
 
+SCRIPT_DIR=$(cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd)
+MINIFIER_PATH="${SCRIPT_DIR}/minifier.py"
+
 banner() {
   printf "%s\n" \
 ' ________ _________  _______   ________  _________  _______   ________     ' \
@@ -53,7 +56,7 @@ set_src() {
   if [ -z "${1}" ]; then
     return
   else
-    out_fil_name="${1}"
+    out_fil_name="${SCRIPT_DIR}/${1}"
   fi
   if file_exists "${out_fil_name}"; then
     if ! yn_prompt "${MSG_WARN} Compressed source file exists. Do you want to overwrite?"; then
@@ -61,12 +64,12 @@ set_src() {
     fi
   fi
   echo "${MSG_INFO} Compressing sources..."
-  compressed_srcs=$(find ../ -maxdepth 1 -name 'ft_*.c' -type f -print0 | xargs -0 python3 minifier.py | sed "/#include \"libft.h\"/d; /^$/d")
-  compressed_headers=$(find ../ -maxdepth 1 -name '*.h' -type f -print0 | xargs -0 python3 minifier.py | sed "/^$/d")
-  if [ "$(find ./extra/ -maxdepth 1 -name '*.c' -type f 2>/dev/null | wc -l)" -ne 0 ]; then
+  compressed_srcs=$(find "${SCRIPT_DIR}/../" -maxdepth 1 -name 'ft_*.c' -type f -exec python3 "${MINIFIER_PATH}" {} + | sed "/#include \"libft.h\"/d; /^$/d")
+  compressed_headers=$(find "${SCRIPT_DIR}/../" -maxdepth 1 -name '*.h' -type f -exec python3 "${MINIFIER_PATH}" {} + | sed "/^$/d")
+  if [ "$(find "${SCRIPT_DIR}/extra/" -maxdepth 1 -name '*.c' -type f 2>/dev/null | wc -l)" -ne 0 ]; then
     echo "${MSG_INFO} Appending test sources..."
-    test_files=$(find ./extra/ -maxdepth 1 -name '*.c' -type f -print0 | xargs -0 python3 minifier.py | sed "/^\s*#\(define\|include\)/d;/^\s*$/d")
-    test_filelist=$(find ./extra/ -maxdepth 1 -name '*.c' -type f)
+    test_files=$(find "${SCRIPT_DIR}/extra" -maxdepth 1 -name '*.c' -type f -exec python3 "${MINIFIER_PATH}" {} + | sed "/^\s*#\(define\|include\)/d;/^\s*$/d")
+    test_filelist=$(find "${SCRIPT_DIR}/extra" -maxdepth 1 -name '*.c' -type f)
     for file in "${test_filelist[@]}"; do
       # get only filename; ./path/file.tar.gz -> file.tar.gz
       file="${file##*/}"
@@ -77,7 +80,7 @@ set_src() {
     main_str="${main_str}return (0);}"
   else
     main_str="int main(int a, char *b[]){return (0);}"
-    echo "${MSG_WARN} No test file was found."
+    echo "${MSG_WARN} No C file in ${SCRIPT_DIR}/extra"
   fi
   printf "\
 #include <ctype.h>

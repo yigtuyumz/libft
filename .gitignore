@@ -7,3 +7,7 @@ libft.pdf
 .venv/
 *.log
 test
+*.out
+
+
+sync_config.jsonc
