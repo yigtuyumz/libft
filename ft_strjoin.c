@@ -1,29 +1,31 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_memchr.c                                        :+:      :+:    :+:   */
+/*   ft_strjoin.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: yuyumaz <yuyumaz@student.42kocaeli.com.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/05/27 01:04:17 by yuyumaz           #+#    #+#             */
-/*   Updated: 2025/06/06 00:45:34 by yuyumaz          ###   ########.fr       */
+/*   Created: 2025/06/06 01:48:59 by yuyumaz           #+#    #+#             */
+/*   Updated: 2025/06/06 02:24:08 by yuyumaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft.h"
+#include <stdlib.h>
 
-void	*ft_memchr(const void *s, int c, size_t n)
+char	*ft_strjoin(char const *s1, char const *s2)
 {
-	unsigned char	*p;
-	size_t			i;
+	size_t	i;
+	char	*ret;
 
-	p = (unsigned char *) s;
+	ret = (char *) malloc(sizeof(char) * (ft_strlen(s1) + ft_strlen(s2) + 1));
+	if (!ret)
+		return ((char *) 0);
 	i = 0;
-	while (i < n)
-	{
-		if (*(p + i) == (unsigned char) c)
-			return ((void *) p + i);
-		i++;
-	}
-	return (0);
+	while (*s1)
+		*(ret + i++) = *(s1++);
+	while (*s2)
+		*(ret + i++) = *(s2++);
+	*(ret + i) = 0;
+	return (ret);
 }
