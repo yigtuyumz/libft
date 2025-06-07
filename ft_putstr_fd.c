@@ -6,7 +6,7 @@
 /*   By: yuyumaz <yuyumaz@student.42kocaeli.com.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/07 22:11:32 by yuyumaz           #+#    #+#             */
-/*   Updated: 2025/06/07 22:12:19 by yuyumaz          ###   ########.fr       */
+/*   Updated: 2025/06/07 22:19:55 by yuyumaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,6 @@
 
 void	ft_putstr_fd(char *s, int fd)
 {
-	if (s)
+	if (s && fd >= 0)
 		write(fd, s, ft_strlen(s));
 }
