@@ -1,36 +1,36 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_strmap.c                                        :+:      :+:    :+:   */
+/*   ft_putnbr_fd.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: yuyumaz <yuyumaz@student.42kocaeli.com.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/06/02 21:20:24 by yuyumaz           #+#    #+#             */
-/*   Updated: 2025/06/03 00:38:02 by yuyumaz          ###   ########.fr       */
+/*   Created: 2025/06/07 22:29:13 by yuyumaz           #+#    #+#             */
+/*   Updated: 2025/06/07 22:50:11 by yuyumaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <stdlib.h>
-#include "libft.h"
+#include <unistd.h>
 
-char	*ft_strmap(const char *s, char (*f)(char))
+void	ft_putnbr_fd(int n, int fd)
 {
-	size_t	len;
-	size_t	i;
-	char	*ret;
-
-	if (!s)
-		return ((char *) 0);
-	len = ft_strlen(s);
-	ret = (char *) malloc(sizeof(char) * (len + 1));
-	if (!ret)
-		return (ret);
-	i = 0;
-	while (i < len)
+	if (fd < 0)
+		return ;
+	if (n < 0)
 	{
-		*(ret + i) = f(*(s + i));
-		i++;
+		write(fd, "-", 1);
+		if (n == ~0x7FFFFFFF)
+		{
+			write(fd, "2", 1);
+			n = -147483648;
+		}
+		n = -n;
 	}
-	*(ret + i) = 0;
-	return (ret);
+	if (n >= 10)
+	{
+		ft_putnbr_fd((n / 10), fd);
+		n = n % 10;
+	}
+	if (n < 10)
+		write(fd, "0123456789" + n, 1);
 }
