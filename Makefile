@@ -24,6 +24,7 @@ FT_SRCS =	ft_atoi.c			\
 			ft_putstr_fd.c		\
 			ft_strchr.c			\
 			ft_strdup.c			\
+			ft_striteri.c		\
 			ft_strjoin.c		\
 			ft_strlcat.c		\
 			ft_strlcpy.c		\
@@ -60,3 +61,4 @@ debug: $(NAME)
 
 tests: debug
 	make -C ./debug tests
+
