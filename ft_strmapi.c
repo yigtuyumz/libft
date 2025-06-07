@@ -6,7 +6,7 @@
 /*   By: yuyumaz <yuyumaz@student.42kocaeli.com.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/06 00:50:55 by yuyumaz           #+#    #+#             */
-/*   Updated: 2025/06/06 00:59:57 by yuyumaz          ###   ########.fr       */
+/*   Updated: 2025/06/08 01:11:22 by yuyumaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,11 +15,11 @@
 
 char	*ft_strmapi(char const *s, char (*f)(unsigned int, char))
 {
-	char	*ret;
-	size_t	len;
-	size_t	i;
+	char			*ret;
+	size_t			len;
+	unsigned int	i;
 
-	if (!s)
+	if (!s || !f)
 		return ((char *) 0);
 	len = ft_strlen(s);
 	ret = (char *) malloc(sizeof(char) * (len + 1));
@@ -28,8 +28,9 @@ char	*ft_strmapi(char const *s, char (*f)(unsigned int, char))
 	i = 0;
 	while (i < len)
 	{
-		*(ret + i) = f((unsigned int) i, *(s + i));
+		*(ret + i) = f(i, *(s + i));
 		i++;
 	}
+	*(ret + i) = 0;
 	return (ret);
 }

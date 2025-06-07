@@ -6,7 +6,7 @@
 /*   By: yuyumaz <yuyumaz@student.42kocaeli.com.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/07 18:52:19 by yuyumaz           #+#    #+#             */
-/*   Updated: 2025/06/07 20:54:23 by yuyumaz          ###   ########.fr       */
+/*   Updated: 2025/06/08 01:51:55 by yuyumaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,14 +35,14 @@ char	*ft_itoa(int n)
 	char	*buffer;
 	int		len;
 
+	if (n == -2147483648)
+		return (ft_strdup("-2147483648"));
+	if (n == 0)
+		return (ft_strdup("0"));
 	len = get_malloc_sz(n);
 	buffer = (char *) malloc(sizeof(char) * len);
 	if (!buffer)
 		return ((char *) 0);
-	if (n == ~0x7FFFFFFF)
-		return (ft_memcpy(buffer, "-2147483648", len));
-	if (n == 0)
-		return (ft_memcpy(buffer, "0", len));
 	if (n < 0)
 	{
 		*(buffer + 0) = '-';

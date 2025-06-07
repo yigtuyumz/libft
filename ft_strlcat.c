@@ -6,7 +6,7 @@
 /*   By: yuyumaz <yuyumaz@student.42kocaeli.com.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/04 00:39:03 by yuyumaz           #+#    #+#             */
-/*   Updated: 2025/06/04 00:49:53 by yuyumaz          ###   ########.fr       */
+/*   Updated: 2025/06/08 01:33:36 by yuyumaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@ size_t	ft_strlcat(char *dst, const char *src, size_t size)
 		return (size + len2);
 	while (i < len2 && (len + i < size - 1))
 	{
-		*(dst + len) = *(src + i);
+		*(dst + len + i) = *(src + i);
 		i++;
 	}
 	*(dst + len + i) = 0;

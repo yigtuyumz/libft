@@ -6,7 +6,7 @@
 /*   By: yuyumaz <yuyumaz@student.42kocaeli.com.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/07 22:29:13 by yuyumaz           #+#    #+#             */
-/*   Updated: 2025/06/07 22:50:11 by yuyumaz          ###   ########.fr       */
+/*   Updated: 2025/06/08 01:34:14 by yuyumaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,8 +21,8 @@ void	ft_putnbr_fd(int n, int fd)
 		write(fd, "-", 1);
 		if (n == ~0x7FFFFFFF)
 		{
-			write(fd, "2", 1);
-			n = -147483648;
+			write(fd, "-2147483648", 11);
+			return ;
 		}
 		n = -n;
 	}
