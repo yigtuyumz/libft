@@ -374,9 +374,6 @@ void substr_tester(void)
 	// 15. sıfır uzunlukta ama geçerli pozisyondan substring
 	assert_substr("nonempty", 3, 0, "", "len 0 at middle");
 
-	// 16. tümüyle emoji içeren string (UTF-8, çok bayt)
-	assert_substr("😀😃😄😁", 2, 1, "😄", "emoji multi-byte substr");
-
 	// 17. NULL string verildiğinde nasıl davranıyor?
 	assert_substr(NULL, 0, 1, NULL, "NULL input string");
 

@@ -6,19 +6,37 @@
 /*   By: yuyumaz <yuyumaz@student.42kocaeli.com.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/26 19:50:57 by yuyumaz           #+#    #+#             */
-/*   Updated: 2025/06/08 02:00:19 by yuyumaz          ###   ########.fr       */
+/*   Updated: 2025/06/08 05:39:50 by yuyumaz          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef LIBFT_H
 # define LIBFT_H
 
+# include <unistd.h>
+
 # ifdef __DEBUG__
+
 void	*ft_print_memory(void *addr, unsigned int size);
 void	*ft_print_memory_fd(int fd, void *addr, unsigned int size);
+
 # endif /* __DEBUG__ */
 
-# include <unistd.h>
+typedef struct s_list
+{
+	void			*content;
+	struct s_list	*next;
+}	t_list;
+
+t_list	*ft_lstnew(void *content);
+void	ft_lstadd_front(t_list **lst, t_list *new);
+int		ft_lstsize(t_list *lst);
+t_list	*ft_lstlast(t_list *lst);
+void	ft_lstadd_back(t_list **lst, t_list *new);
+void	ft_lstdelone(t_list *lst, void (*del)(void *));
+void	ft_lstclear(t_list **lst, void (*del)(void *));
+void	ft_lstiter(t_list *lst, void (*f)(void *));
+t_list	*ft_lstmap(t_list *lst, void *(*f)(void *), void (*del)(void *));
 
 char	*ft_itoa(int n);
 char	*ft_strchr(const char *s, int c);
